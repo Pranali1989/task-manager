@@ -30,6 +30,9 @@ COPY . /var/www/html
 # Set correct document root to /public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
