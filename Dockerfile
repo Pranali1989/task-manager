@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
+    npm \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip
 
 # Enable Apache rewrite module
@@ -24,12 +25,13 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Install NPM dependencies and build assets
+RUN npm install && npm run build
+
 # Set permissions for Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# ⚠️ THIS IS THE CRUCIAL LINE:
-# Change Apache DocumentRoot to /var/www/html/public
+# Update Apache DocumentRoot to /public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Expose port 80
 EXPOSE 80
